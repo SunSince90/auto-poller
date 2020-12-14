@@ -5,12 +5,10 @@ import (
 	"time"
 )
 
-func nextRandom(min, max uint) uint {
+func nextRandom(min, max int) int {
 	source := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(source)
-	_min := int(min)
-	_max := int(max)
-	next := r.Intn(_max-_min+1) + _min
 
-	return uint(next)
+	next := r.Intn(max-min+1) + min
+	return int(next)
 }

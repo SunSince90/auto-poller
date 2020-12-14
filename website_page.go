@@ -18,7 +18,8 @@ type WebsitePage struct {
 	// URL to poll
 	URL string `json:"url"`
 	// UserAgents to use
-	UserAgents   []string `json:"userAgents"`
+	UserAgents []string `json:"userAgents"`
+	// PollSettings contains settings about polling
 	PollSettings `json:"pollSettings"`
 }
 
@@ -27,11 +28,11 @@ type PollSettings struct {
 	// Type of polling
 	Type PollType `json:"type"`
 	// Frequency of polling, in seconds
-	Frequency *uint `json:"frequency"`
+	Frequency *int `json:"frequency"`
 	// RandMin is the minimum value that can be extracted
 	// when random polling
-	RandMin *uint `json:"randMin"`
+	RandMin *int `json:"randMin"`
 	// RandMin is the maximum value that can be extracted
 	// when random polling
-	RandMax *uint `json:"randMax"`
+	RandMax *int `json:"randMax"`
 }
