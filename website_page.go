@@ -5,10 +5,10 @@ type PollType string
 
 const (
 	// FixedPolling is a constant polling
-	FixedPolling string = "fixed"
+	FixedPolling PollType = "fixed"
 	// RandPolling means that the next poll will always be a random
 	// value
-	RandPolling string = "random"
+	RandPolling PollType = "random"
 )
 
 // WebsitePage contains information of the page to poll
