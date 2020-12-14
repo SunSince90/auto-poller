@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -63,7 +64,7 @@ func (p *poll) Start(ctx context.Context, exitChan chan struct{}) {
 		// Which one happens first?
 		select {
 		case <-ticker.C:
-			p.check()
+			p.check(ctx)
 		case <-ctx.Done():
 			l.Info("stop requested")
 			ticker.Stop()
@@ -89,13 +90,57 @@ func (p *poll) RemovePage(id string) {
 	delete(p.pages, id)
 }
 
-func (p *poll) check() {
+func (p *poll) check(ctx context.Context) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
 	for _, page := range p.pages {
 		if page.shouldGo() {
-			// go poll
+			go p.do(ctx, page)
 		}
 	}
+}
+
+func (p *poll) do(ctx context.Context, pi *pollInfo) {
+	l := log.WithFields(log.Fields{"func": "poll.do", "id": pi.ID})
+	uas := p.globalUAs
+	ua := ""
+
+	// Get the user agent
+	if len(pi.UserAgents) > 0 {
+		if len(pi.UserAgents) == 0 {
+			ua = pi.UserAgents[0]
+		}
+		uas = pi.UserAgents
+	} else {
+		n := nextRandom(0, uint(len(uas)-1))
+		ua = uas[n]
+	}
+
+	l.Debug("using user agent", ua)
+
+	resp, err := p.doRequest(ctx, pi.URL, ua)
+	if err != nil {
+		l.WithError(err).Error("error while doing request")
+	}
+
+	// Pass this to the callback
+	go pi.f(resp, err)
+}
+
+func (p *poll) doRequest(ctx context.Context, url, ua string) (resp *http.Response, err error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return
+	}
+
+	req.Header.Add("User-Agent", ua)
+	resp, err = p.httpClient.Do(req)
+	if err != nil {
+		if strings.Contains(err.Error(), context.DeadlineExceeded.Error()) {
+			err = context.DeadlineExceeded
+		}
+	}
+
+	return
 }

@@ -15,7 +15,7 @@ type pollInfo struct {
 
 // CallBack is a pointer to a function that must be executed after
 // an http call is performed
-type CallBack func(*http.Response)
+type CallBack func(*http.Response, error)
 
 func newPollInfo(page *WebsitePage, f CallBack) *pollInfo {
 	return &pollInfo{
