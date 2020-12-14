@@ -12,13 +12,14 @@ import (
 // Poller performs continous polling to websites
 type Poller interface {
 	Start(ctx context.Context, exitChan chan struct{})
+	AddUserAgents(uas []string)
 	AddPage(page *WebsitePage, f CallBack)
 	RemovePage(id string)
 }
 
 type poll struct {
-	pages map[string]*pollInfo
-
+	pages      map[string]*pollInfo
+	globalUAs  []string
 	httpClient *http.Client
 	lock       sync.Mutex
 }
@@ -38,8 +39,18 @@ func New(timeout int, redir bool) Poller {
 
 	return &poll{
 		pages:      map[string]*pollInfo{},
+		globalUAs:  []string{},
 		httpClient: httpClient,
 	}
+}
+
+// AddUserAgents adds user agents for all pages, except those that
+// set their owns
+func (p *poll) AddUserAgents(uas []string) {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
+	p.globalUAs = append(p.globalUAs, uas...)
 }
 
 // Start polling
