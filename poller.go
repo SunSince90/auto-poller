@@ -61,14 +61,13 @@ func (p *poll) Start(ctx context.Context, exitChan chan struct{}) {
 
 	ticker := time.NewTicker(time.Second)
 	for {
-		// Which one happens first?
 		select {
 		case <-ticker.C:
 			p.check(ctx)
 		case <-ctx.Done():
 			l.Info("stop requested")
 			ticker.Stop()
-			exitChan <- struct{}{}
+			close(exitChan)
 			return
 		}
 	}
@@ -76,10 +75,12 @@ func (p *poll) Start(ctx context.Context, exitChan chan struct{}) {
 
 // AddPage adds a new website to poll
 func (p *poll) AddPage(page *WebsitePage, f CallBack) {
+	l := log.WithFields(log.Fields{"func": "poll.AddPage", "id": page.ID})
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
 	p.pages[page.ID] = newPollInfo(page, f)
+	l.WithField("polling-in", p.pages[page.ID].remaining).Info("added")
 }
 
 // RemovePage removes website page
@@ -113,8 +114,10 @@ func (p *poll) do(ctx context.Context, pi *pollInfo) {
 		}
 		uas = pi.UserAgents
 	} else {
-		n := nextRandom(0, uint(len(uas)-1))
-		ua = uas[n]
+		if len(p.globalUAs) > 0 {
+			n := nextRandom(0, len(uas)-1)
+			ua = uas[n]
+		}
 	}
 
 	l.Debug("using user agent", ua)
@@ -125,7 +128,7 @@ func (p *poll) do(ctx context.Context, pi *pollInfo) {
 	}
 
 	// Pass this to the callback
-	go pi.f(resp, err)
+	go pi.f(pi.WebsitePage, resp, err)
 }
 
 func (p *poll) doRequest(ctx context.Context, url, ua string) (resp *http.Response, err error) {
@@ -134,7 +137,10 @@ func (p *poll) doRequest(ctx context.Context, url, ua string) (resp *http.Respon
 		return
 	}
 
-	req.Header.Add("User-Agent", ua)
+	if len(ua) > 0 {
+		req.Header.Add("User-Agent", ua)
+	}
+
 	resp, err = p.httpClient.Do(req)
 	if err != nil {
 		if strings.Contains(err.Error(), context.DeadlineExceeded.Error()) {
