@@ -13,7 +13,7 @@ update-gomod:
 
 # Build this
 build: test
-	go build -a -o cnwan-reader *.go
+	go build -a -o poll *.go
 
 test:
 	go test ./...
