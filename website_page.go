@@ -14,27 +14,27 @@ const (
 // WebsitePage contains information of the page to poll
 type WebsitePage struct {
 	// ID of this page
-	ID string `json:"id"`
+	ID string `json:"id" yaml:"id"`
 	// URL to poll
-	URL string `json:"url"`
+	URL string `json:"url" yaml:"url"`
 	// NotifyURL is the url to notify externally
-	NotifyURL string `json:"notifyUrl"`
+	NotifyURL *string `json:"notifyUrl" yaml:"notifyUrl,omitempty"`
 	// UserAgents to use
-	UserAgents []string `json:"userAgents"`
+	UserAgents []string `json:"userAgents" yaml:"userAgents,omitempty"`
 	// PollSettings contains settings about polling
-	PollSettings `json:"pollSettings"`
+	PollSettings `json:"pollSettings" yaml:"pollSettings"`
 }
 
 // PollSettings contains settings about polling
 type PollSettings struct {
 	// Type of polling
-	Type PollType `json:"type"`
+	Type PollType `json:"type" yaml:"type"`
 	// Frequency of polling, in seconds
-	Frequency *int `json:"frequency"`
+	Frequency *int `json:"frequency" yaml:"frequency,omitempty"`
 	// RandMin is the minimum value that can be extracted
 	// when random polling
-	RandMin *int `json:"randMin"`
+	RandMin *int `json:"randMin" yaml:"randMin,omitempty"`
 	// RandMin is the maximum value that can be extracted
 	// when random polling
-	RandMax *int `json:"randMax"`
+	RandMax *int `json:"randMax" yaml:"randMax,omitempty"`
 }
