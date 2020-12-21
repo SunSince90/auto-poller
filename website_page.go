@@ -15,8 +15,10 @@ const (
 type WebsitePage struct {
 	// ID of this page
 	ID string `json:"id" yaml:"id"`
-	// Name of the product polled
-	Name string `json:"name" yaml:"name"`
+	// WebsiteName is the name of the website
+	WebsiteName string `json:"websiteName" yaml:"websiteName"`
+	// ProductName is the name of the product polled
+	ProductName string `json:"productName" yaml:"productName"`
 	// URL to poll
 	URL string `json:"url" yaml:"url"`
 	// NotifyURL is the url to notify externally
