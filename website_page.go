@@ -17,6 +17,8 @@ type WebsitePage struct {
 	ID string `json:"id"`
 	// URL to poll
 	URL string `json:"url"`
+	// NotifyURL is the url to notify externally
+	NotifyURL string `json:"notifyUrl"`
 	// UserAgents to use
 	UserAgents []string `json:"userAgents"`
 	// PollSettings contains settings about polling
