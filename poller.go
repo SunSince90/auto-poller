@@ -109,7 +109,7 @@ func (p *poll) do(ctx context.Context, pi *pollInfo) {
 
 	// Get the user agent
 	if len(pi.UserAgents) > 0 {
-		if len(pi.UserAgents) == 0 {
+		if len(pi.UserAgents) == 1 {
 			ua = pi.UserAgents[0]
 		}
 		uas = pi.UserAgents
