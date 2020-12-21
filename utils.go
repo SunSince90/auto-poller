@@ -1,4 +1,4 @@
-package main
+package autopoller
 
 import (
 	"math/rand"

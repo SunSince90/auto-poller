@@ -1,4 +1,4 @@
-package main
+package autopoller
 
 // PollType represents the polling type (fixed or randomized)
 type PollType string
