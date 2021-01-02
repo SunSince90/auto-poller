@@ -15,12 +15,13 @@ var (
 )
 
 const (
-	defaultFrequency         int = 30
-	minFrequency             int = 5
-	minOffset                int = 5
-	minRandomFrequency       int = 15
-	defaultOffsetRange       int = 10
-	defaultHTTPClientTimeout int = 20
+	defaultFrequency         int    = 30
+	minFrequency             int    = 5
+	minOffset                int    = 5
+	minRandomFrequency       int    = 15
+	defaultOffsetRange       int    = 10
+	defaultHTTPClientTimeout int    = 20
+	userAgentHeaderKey       string = "User-Agent"
 )
 
 func init() {
@@ -125,7 +126,66 @@ func New(p *Page) (Poller, error) {
 
 // Start polling
 func (p *pagePoller) Start(ctx context.Context, now bool) {
-	// TODO: implement me
+	if now {
+		p.poll(ctx)
+	}
+
+	if !p.randTick {
+		p.startFixed(ctx)
+	} else {
+		p.startRandom(ctx)
+	}
+}
+
+func (p *pagePoller) startFixed(ctx context.Context) {
+	ticker := time.NewTicker(time.Duration(p.ticks) * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			go p.poll(ctx)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+func (p *pagePoller) startRandom(ctx context.Context) {
+	ticker := time.NewTimer(time.Duration(p.ticks) * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			go p.poll(ctx)
+			next := nextRandomTick(p.ticks-p.offsetRange, p.ticks+p.offsetRange)
+			ticker.Reset(time.Duration(next) * time.Second)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+func (p *pagePoller) poll(ctx context.Context) {
+	// -- Get the user agent for this request,
+	// and get the one for the next request
+	userAgent, index := getNextUA(p.id, p.userAgents, p.randUa, p.lastUAIndex)
+	p.lastUAIndex = index
+
+	// -- Clone the request
+	req := p.request.Clone(ctx)
+	if len(userAgent) > 0 {
+		req.Header.Set(userAgentHeaderKey, userAgent)
+	}
+
+	resp, err := p.httpClient.Do(req)
+
+	// -- Pass response and error to the response handler func
+	if p.HandlerFunc != nil {
+		p.HandlerFunc(p.id, resp, err)
+		return
+	}
 }
 
 // SetHandlerFunc sets the function that will be called when a poll has
