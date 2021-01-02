@@ -1,4 +1,4 @@
-module github.com/SunSince90/auto-poller
+module github.com/SunSince90/website-poller
 
 go 1.15
 
