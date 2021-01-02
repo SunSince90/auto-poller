@@ -191,5 +191,5 @@ func (p *pagePoller) poll(ctx context.Context) {
 // SetHandlerFunc sets the function that will be called when a poll has
 // finished
 func (p *pagePoller) SetHandlerFunc(f HandlerFunc) {
-	// TODO: implement me
+	p.HandlerFunc = f
 }
