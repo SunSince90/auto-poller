@@ -38,6 +38,11 @@ type Poller interface {
 	// SetHandlerFunc sets the function that will be called when a poll has
 	// finished
 	SetHandlerFunc(HandlerFunc)
+	// GetID returns the ID of this poller. If the `Page` struct provided
+	// to `New` contained a non-empty `ID`, then this returns the same ID as
+	// the one contained in there, otherwise it returns a randomly generated
+	// one.
+	GetID() string
 }
 
 type pagePoller struct {
@@ -192,4 +197,12 @@ func (p *pagePoller) poll(ctx context.Context) {
 // finished
 func (p *pagePoller) SetHandlerFunc(f HandlerFunc) {
 	p.HandlerFunc = f
+}
+
+// GetID returns the ID of this poller. If the `Page` struct provided
+// to `New` contained a non-empty `ID`, then this returns the same ID as
+// the one contained in there, otherwise it returns a randomly generated
+// one.
+func (p *pagePoller) GetID() string {
+	return p.id
 }
