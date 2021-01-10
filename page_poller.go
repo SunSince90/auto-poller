@@ -78,7 +78,9 @@ func New(p *Page) (Poller, error) {
 	if p.Headers == nil {
 		l.Warn().Msg("no headers provided")
 	} else {
-		headers = p.Headers
+		for headerKey, headerVal := range p.Headers {
+			headers[headerKey] = []string{headerVal}
+		}
 		switch hlen := len(p.Headers); {
 		case hlen == 0:
 			l.Warn().Msg("no headers provided")
