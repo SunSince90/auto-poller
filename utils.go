@@ -60,7 +60,6 @@ func parsePollOptions(id string, opts *PollOptions) (randFreq bool, freq int, of
 	randFreq, freq, offset = false, defaultFrequency, 0
 
 	if opts == nil {
-		l.Debug().Msg("no poll options, returning default values...")
 		return
 	}
 
@@ -110,7 +109,6 @@ func parseUserAgentOptions(id string, opts *UserAgentOptions) (randUA bool, uas 
 	}
 
 	if randUA {
-		l.Debug().Msg("random user agents will be used")
 		return
 	}
 
@@ -124,13 +122,11 @@ func nextRandomTick(min, max int) int {
 }
 
 func getNextUA(id string, userAgents []string, random bool, last int) (ua string, index int) {
-	l := log.With().Str("id", id).Logger()
 	ua, index = "", -1
 
 	if len(userAgents) == 0 {
 		if random {
 			ua = randomdata.UserAgentString()
-			l.Debug().Str("user-agent", ua).Msg("generated random user agent")
 		}
 
 		return
@@ -141,14 +137,12 @@ func getNextUA(id string, userAgents []string, random bool, last int) (ua string
 	if !random {
 		index = (index + 1) % length
 		ua = userAgents[index]
-		l.Debug().Str("user-agent", ua).Int("index", index).Msg("rotated user agent")
 	} else {
 		rand.Seed(time.Now().UnixNano())
 		for index == last {
 			index = rand.Intn(length - 1)
 		}
 		ua = userAgents[index]
-		l.Debug().Str("user-agent", ua).Int("index", index).Msg("picked random user agent")
 	}
 
 	return
