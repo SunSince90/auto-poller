@@ -12,7 +12,7 @@ type Page struct {
 	// Method of the request, e.g.: GET
 	Method *string `yaml:"method,omitempty"`
 	// Headers to send with the request
-	Headers map[string][]string `yaml:"headers,omitempty"`
+	Headers map[string]string `yaml:"headers,omitempty"`
 	// UserAgentOptions contains options about the
 	// user agent
 	*UserAgentOptions `yaml:"userAgentOptions,omitempty"`
