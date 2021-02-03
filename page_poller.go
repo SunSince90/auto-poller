@@ -95,6 +95,9 @@ func New(p *Page) (Poller, error) {
 			return http.ErrUseLastResponse
 		},
 	}
+	if p.FollowRedirect {
+		httpClient.CheckRedirect = nil
+	}
 
 	request, err := http.NewRequestWithContext(context.Background(), method, parsedURL.String(), nil)
 	if err != nil {
