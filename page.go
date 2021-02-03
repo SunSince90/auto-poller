@@ -18,7 +18,9 @@ type Page struct {
 	*UserAgentOptions `yaml:"userAgentOptions,omitempty"`
 	// PollOptions contains options about polling
 	*PollOptions `yaml:"pollOptions,omitempty"`
-
+	// FollowRedirect specifies whether to follow redirects or not.
+	// Default is false
+	FollowRedirect bool `yaml:"followRedirect,omitempty"`
 	// TODO: support cookies?
 	// TODO: support body
 }
